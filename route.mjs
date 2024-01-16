@@ -2,14 +2,17 @@ import register from "./controller/userController.mjs";
 
 export function route(req) {
     console.log("================================ PROCESS START ================================")
+    let response = null; 
 
     const url = req.url;
-    const method = req.method; 
-    getPathRaw(url);
-    let queryParamRaw = getQueryParamRaw(url);
-    getQueryParamPairs(queryParamRaw);
+    const method = req.method;
+    console.log(url);
+    console.log(method); 
 
-    let response = null; 
+    let result = getPathAndQueryRaw(url);
+    if (result["queryRaw"] != null) {
+        getQueryParamPairs(result["queryRaw"]);
+    }
 
     if (url.startsWith("/user")) {
         response =  register();
@@ -18,30 +21,24 @@ export function route(req) {
     }
 
     console.log("================================ PROCESS END ================================")
-
     return response;
 }
 
-function getPathRaw(url) {
+function getPathAndQueryRaw(url) {
+    let result = {}
     let queryParamSignIndex = url.indexOf("?");
 
     if (queryParamSignIndex !== -1) {
-        let pathRaw = url.slice(0, queryParamSignIndex);
-        console.log(pathRaw);
-        return pathRaw;
+        result["pathRaw"] = url.slice(0, queryParamSignIndex);
+        result["queryRaw"]= url.slice(queryParamSignIndex+1);
+    } else {
+        result["pathRaw"] = url;
+        result["queryRaw"] = null;
     }
-    return url;
-}
 
-function getQueryParamRaw(url) {
-    let queryParamSignIndex = url.indexOf("?");
+    console.table(result);
 
-    if (queryParamSignIndex !== -1) {
-        let queryParamRaw = url.slice(queryParamSignIndex+1);
-        console.log(queryParamRaw);
-        return queryParamRaw;
-    }
-    return null;
+    return result;
 }
 
 // if queryParamRaw !== null
